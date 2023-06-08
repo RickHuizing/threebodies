@@ -45,6 +45,34 @@ def compute_euler(time_steps, step_size, x, y, M, ax, ay, G, vx, vy):
     return -1  # success
 
 
+def compute_verlet(time_steps, step_size, x, y, M, ax, ay, G, vx, vy):
+    half_step_size_sq = 0.5 * (step_size ** 2)
+    half_step_size = 0.5 * step_size
+    for i in range(x.shape[0] - 1):
+        # Compute current acceleration
+        ax_tot, ay_tot = compute_a(x[i, :], y[i, :], M, ax, ay, G)
+
+        # Update the position
+        nx = x[i, :] + step_size * vx[i, :] + half_step_size_sq * ax_tot
+        ny = y[i, :] + step_size * vy[i, :] + half_step_size_sq * ay_tot
+
+        # early stop - bodies too far apart
+        if np.max(nx) > 3 or np.max(ny) > 3 or np.min(nx) < -3 or np.min(ny) < -3:
+            return i + 1
+
+        x[i + 1, :] = nx
+        y[i + 1, :] = ny
+
+        # Compute the next time acceleration
+        ax_tot_next, ay_tot_next = compute_a(x[i + 1, :], y[i + 1, :], M, ax, ay, G)
+
+        # Compute the next time velocity according to the Verlet method
+        vx[i + 1, :] = vx[i, :] + half_step_size * (ax_tot + ax_tot_next)
+        vy[i + 1, :] = vy[i, :] + half_step_size * (ay_tot + ay_tot_next)
+
+    return -1  # success
+
+
 def plot(x, y, path: str = None, show=True, savefig=True):
     if not show and not savefig:
         return
@@ -56,6 +84,8 @@ def plot(x, y, path: str = None, show=True, savefig=True):
     plt.title("Simple Euler method")
     plt.xlabel('x')
     plt.ylabel('y')
+    plt.xlim((-3, 3))
+    plt.ylim((-3, 3))
     # plt.xscale("logit")
     # plt.yscale("logit")
     plt.plot(x[:, 0], y[:, 0], 'r')

@@ -4,17 +4,17 @@ import random
 
 import numpy as np
 
-from Three_body_2D_Rick import Config, plot, compute_euler
+from Three_body_2D_Rick import Config, plot, compute_euler, compute_verlet
 
-rf = 10
+rf = 0
 
 
 def initialize_and_save_config() -> Config:
     # initialize configuration
     config: Config = Config(
-        name="breen-et-al-000001-" + str(rf),
-        step_size=0.000001,
-        range=(0, 2.5),
+        name="breen-et-al-0001-" + str(rf),
+        step_size=0.0001,
+        range=(0, 10),
         iterations=10000
     )
 
@@ -86,7 +86,6 @@ def main():
 
         plot(x, y, folder + "plot.png")
 
-        np.save(folder + "data.npy", [x, y, vx, vy])
         np.savez(folder + "data.npz", x=x, y=y, vx=vx, vy=vy)
 
     # init_bodies()
@@ -94,8 +93,8 @@ def main():
 
     increment = config.range[1]
     for iteration in range(rf * config.iterations, (rf + 1) * config.iterations):
-        moment_of_failure = compute_euler(config.time_vector(), config.step_size, x, y, config.M, ax, ay, config.G, vx,
-                                          vy)
+        moment_of_failure = compute_verlet(config.time_vector(), config.step_size, x, y, config.M, ax, ay, config.G, vx,
+                                           vy)
 
         if moment_of_failure == -1:
             save_data(iteration)
