@@ -39,7 +39,7 @@ def compute_euler(time_steps, step_size, x, y, M, ax, ay, G, vx, vy):
         vy[i + 1, :] = vy[i, :] + step_size * ay_tot
 
         # failure - bodies too far apart
-        if np.max(nx) > 2 or np.max(ny) > 2:
+        if np.max(nx) > 3 or np.max(ny) > 3 or np.min(nx) < -3 or np.min(ny) < -3:
             return i + 1
 
     return -1  # success

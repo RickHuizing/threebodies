@@ -4,14 +4,16 @@ import random
 
 import numpy as np
 
-from data_generation.Three_body_2D_Rick import Config, plot, compute_euler
+from Three_body_2D_Rick import Config, plot, compute_euler
+
+rf = 10
 
 
 def initialize_and_save_config() -> Config:
     # initialize configuration
     config: Config = Config(
-        name="breen-et-al-00001",
-        step_size=0.00001,
+        name="breen-et-al-000001-" + str(rf),
+        step_size=0.000001,
         range=(0, 2.5),
         iterations=10000
     )
@@ -91,8 +93,9 @@ def main():
     init_next_random_iteration()
 
     increment = config.range[1]
-    for iteration in range(config.iterations):
-        moment_of_failure = compute_euler(config.time_vector(), config.step_size, x, y, config.M, ax, ay, config.G, vx, vy)
+    for iteration in range(rf * config.iterations, (rf + 1) * config.iterations):
+        moment_of_failure = compute_euler(config.time_vector(), config.step_size, x, y, config.M, ax, ay, config.G, vx,
+                                          vy)
 
         if moment_of_failure == -1:
             save_data(iteration)
