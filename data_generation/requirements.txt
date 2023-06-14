@@ -1,0 +1,3 @@
+numpy
+numba
+dataclasses_json
