@@ -3,8 +3,7 @@ import os
 import numpy as np
 
 # name of the configuration used to generate the data
-config_name = "breen-et-al-000001-10"
-# config_name = "test"
+config_name = "verlet-000001"
 
 # path to data
 input_path = f"./results/{config_name}"

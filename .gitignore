@@ -1,2 +1,4 @@
-/data_generation/results/
+/data_generation/results/*
 .idea
+!/data_generation/results/verlet-000001/
+!/data_generation/results/verlet-000001/*

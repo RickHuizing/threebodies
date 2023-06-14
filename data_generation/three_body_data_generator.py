@@ -6,14 +6,14 @@ import numpy as np
 
 from Three_body_2D_Rick import Config, plot, compute_euler, compute_verlet
 
-rf = 0
+rf = 6
 
 
 def initialize_and_save_config() -> Config:
     # initialize configuration
     config: Config = Config(
-        name="breen-et-al-0001-" + str(rf),
-        step_size=0.0001,
+        name="verlet-000001-" + str(rf),
+        step_size=0.000001,
         range=(0, 10),
         iterations=10000
     )
