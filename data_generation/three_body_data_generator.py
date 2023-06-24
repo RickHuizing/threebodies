@@ -59,7 +59,7 @@ def main():
         ax[0, 0:3] = ax[-1, -3:]
         ay[0, 0:3] = ay[-1, -3:]
 
-    @jit(nopython=True)
+    #@jit(nopython=True)
     def init_next_random_iteration(x, y, vx, vy, ax, ay):
         # procedure followed by breen et al. (figure 1)
         x1 = 1

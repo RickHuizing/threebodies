@@ -6,7 +6,7 @@ from dataclasses_json import DataClassJsonMixin
 from matplotlib import pyplot as plt
 from numba import jit
 
-@jit(nopython=True)
+#@jit(nopython=True)
 def compute_a(x, y, M, ax, ay, G):
     for j in range(3):
         # Compute the distance between current body and the others(also with itself )
@@ -22,7 +22,7 @@ def compute_a(x, y, M, ax, ay, G):
 
     return np.sum(ax, axis=0), np.sum(ay, axis=0)
 
-@jit(nopython=True)
+#@jit(nopython=True)
 def compute_euler(time_steps, step_size, x, y, M, ax, ay, G, vx, vy):
     # simple euler method
     for i in range(time_steps.size - 1):
@@ -45,7 +45,7 @@ def compute_euler(time_steps, step_size, x, y, M, ax, ay, G, vx, vy):
 
     return -1  # success
 
-@jit(nopython=True)
+#@jit(nopython=True)
 def compute_verlet(time_steps, step_size, x, y, M, ax, ay, G, vx, vy):
     half_step_size_sq = 0.5 * (step_size ** 2)
     half_step_size = 0.5 * step_size
