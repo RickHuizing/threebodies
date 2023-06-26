@@ -14,7 +14,7 @@ public:
 
     // time parameters. Default is from t0 to t5, with steps of 0.001. Result is a dataset of 5000 time steps
     T time_end = 5;
-    T step_size = 0.0001;
+    T step_size = 0.000001;
 
     size_t iterations = 10;
 

@@ -32,7 +32,7 @@ def plot(x, y, path: str = None, show=True, savefig=True):
 
 
 def main():
-    testResult = "results/default/3/"
+    testResult = "results/default/_4/"
 
     x = np.fromfile(testResult + "x.dat")
     y = np.fromfile(testResult + "y.dat")

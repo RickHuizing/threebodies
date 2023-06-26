@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <quadmath.h>
 #include <numeric>
+#include <omp.h>
 
 using namespace std;
 using namespace nc;
@@ -67,7 +68,7 @@ void save_data(const string &result_id, Config<T> config, NdArray<T> &x, NdArray
 }
 
 template <typename T>
-void generateData(Config<T> config, size_t rf = 0)
+void generateData(Config<T> config, size_t start = 0, size_t end = 0)
 {
     // Create output directory
     filesystem::create_directory(config.get_path());
@@ -81,11 +82,16 @@ void generateData(Config<T> config, size_t rf = 0)
     NdArray<T> vy = nc::zeros<T>(time_steps, 3);
     NdArray<T> ax = nc::zeros<T>(3, 3);
     NdArray<T> ay = nc::zeros<T>(3, 3);
+    //NdArray<T> t = nc::zeros<T>(timesteps);
 
     init_next_random_iteration<T>(x, y, vx, vy, ax, ay);
 
+    if(end == 0){
+        end = start + config.iterations;
+    }
+
     size_t increment = config.iterations;
-    for (size_t iteration = rf * config.iterations; iteration < (rf + 1) * config.iterations; iteration++)
+    for (size_t iteration = start; iteration < end; iteration++)
     {
         auto start = chrono::high_resolution_clock::now();
 
@@ -124,16 +130,28 @@ void generateData(Config<T> config, size_t rf = 0)
         init_next_random_iteration<T>(x, y, vx, vy, ax, ay);
         auto end = chrono::high_resolution_clock::now();
         chrono::duration<double> duration = end - start;
-        cout << duration.count() << '\n';
+        cout << "Run " << iteration << " finished in " << duration.count() << " seconds\n";
+
+
+        cout << iteration << " mean vx: " << nc::mean(vx)[0] << '\n';
+        cout << iteration << " max vx: " << nc::max(vx)[0] << '\n';
+
     }
 }
 
 int main()
 {
+    const int numThreads = omp_get_num_procs();
 
-    //TODO: use higher precision floats
     Config<double> config = Config<double>();
     config.save();
 
-    generateData<double>(config);
+    #pragma omp parallel for
+    for(int i=0;i < numThreads; i++){
+        const int start = config.iterations * i / numThreads;
+        const int end = config.iterations * (i+1) / numThreads;
+
+        generateData<double>(config, start, end);
+    }
+
 }
