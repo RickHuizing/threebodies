@@ -4,6 +4,19 @@ from typing import List
 import numpy as np
 from dataclasses_json import DataClassJsonMixin
 from matplotlib import pyplot as plt
+
+from matplotlib.pyplot import rcParams, style
+style.use('classic')
+rcParams['font.family'] = 'serif'
+rcParams['font.size'] = 9
+rcParams['legend.fontsize'] = 9
+rcParams['text.usetex'] = True
+rcParams["figure.figsize"] = [150/25.4, 100/25.4]
+rcParams["figure.dpi"] = 144
+rcParams["scatter.marker"] = '.'
+rcParams["figure.autolayout"] = True
+
+
 from numba import jit
 
 #@jit(nopython=True)
