@@ -1,5 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
+import sys
 
 def plot(x, y, path: str = None, show=True, savefig=True):
     if not show and not savefig:
@@ -32,7 +33,12 @@ def plot(x, y, path: str = None, show=True, savefig=True):
 
 
 def main():
-    testResult = "results/default/_4/"
+    basePath = "results/default/"
+
+    if(len(sys.argv) > 1 ):
+        testResult = basePath + sys.argv[1] + "/"
+    else:
+        testResult = "results/default/0/"
 
     x = np.fromfile(testResult + "x.dat")
     y = np.fromfile(testResult + "y.dat")

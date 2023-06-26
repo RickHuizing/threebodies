@@ -17,9 +17,13 @@ void init_next_random_iteration(NdArray<T> &x, NdArray<T> &y, NdArray<T> &vx, Nd
     const T x1 = 1;
     const T y1 = 0;
 
-    const T x2 = -0.5 + 0.5 * nc::random::randN<T>();
+    // Random numbers between 0 and 1
+    T rand1 = static_cast<T>(rand()) / static_cast<T>(RAND_MAX);
+    T rand2 = static_cast<T>(rand()) / static_cast<T>(RAND_MAX);
+
+    const T x2 = -0.5 + 0.5 * rand1;
     const T y2_max = cos(x2);
-    const T y2 = 0 + y2_max * nc::random::randN<T>();
+    const T y2 = 0 + y2_max * rand2;
 
     const T x3 = -x1 - x2;
     const T y3 = -y2;
@@ -82,11 +86,11 @@ void generateData(Config<T> config, size_t start = 0, size_t end = 0)
     NdArray<T> vy = nc::zeros<T>(time_steps, 3);
     NdArray<T> ax = nc::zeros<T>(3, 3);
     NdArray<T> ay = nc::zeros<T>(3, 3);
-    //NdArray<T> t = nc::zeros<T>(timesteps);
 
     init_next_random_iteration<T>(x, y, vx, vy, ax, ay);
 
-    if(end == 0){
+    if (end == 0)
+    {
         end = start + config.iterations;
     }
 
@@ -95,47 +99,52 @@ void generateData(Config<T> config, size_t start = 0, size_t end = 0)
     {
         auto start = chrono::high_resolution_clock::now();
 
-        int moment_of_failure = compute_verlet<T>(
-            config.step_size,
-            x,
-            y,
-            config.M,
-            ax,
-            ay,
-            config.G,
-            vx,
-            vy);
+        int moment_of_failure = 0;
 
-        if (moment_of_failure == -1)
+        // Compute verlet, if it fails for some reason just try again
+        while (moment_of_failure != -1 || moment_of_failure > x.shape().rows)
         {
-            save_data<T>(to_string(iteration), config, x, y, vx, vy);
+            moment_of_failure = compute_verlet<T>(
+                config.step_size,
+                x,
+                y,
+                config.M,
+                ax,
+                ay,
+                config.G,
+                vx,
+                vy);
+
+            if (moment_of_failure == -1)
+            {
+                save_data<T>(to_string(iteration), config, x, y, vx, vy);
+                break;
+            }
+            else if (moment_of_failure > x.shape().rows / 2)
+            {
+                cout << "Run " << iteration << " stopped early at i= " << moment_of_failure << '\n';
+
+                // runs that failed have only zero's at the end
+                // find the point from where everything is all zero's and delete that part of the data
+                NdArray<T> _x = x(nc::Slice(0, moment_of_failure), x.cSlice());
+                NdArray<T> _y = y(nc::Slice(0, moment_of_failure), y.cSlice());
+                NdArray<T> _vx = vx(nc::Slice(0, moment_of_failure), vx.cSlice());
+                NdArray<T> _vy = vy(nc::Slice(0, moment_of_failure), vy.cSlice());
+
+                save_data<T>(to_string(iteration), config, _x, _y, _vx, _vy);
+                break;
+            }
+            else // moment_of failure <= x.shape().rows / 2
+            {
+                cout << "Run " << iteration << " failed at i=" << moment_of_failure << ", trying again\n";
+                // Stopped very early, reset and try again
+                init_next_random_iteration<T>(x, y, vx, vy, ax, ay);
+            }
         }
-        else
-        {
-            cout << "Run " << iteration << " failed at i= " << moment_of_failure << '\n';
-
-            // runs that failed have only zero's at the end
-            // find the point from where everything is all zero's and delete that part of the data
-            NdArray<T> _x = x(nc::Slice(0, moment_of_failure), x.cSlice());
-            NdArray<T> _y = y(nc::Slice(0, moment_of_failure), y.cSlice());
-            NdArray<T> _vx = vx(nc::Slice(0, moment_of_failure), vx.cSlice());
-            NdArray<T> _vy = vy(nc::Slice(0, moment_of_failure), vy.cSlice());
-
-            string failure_name = "_";
-            failure_name.append(to_string(iteration));
-
-            save_data<T>(failure_name, config, _x, _y, _vx, _vy);
-        }
-
         init_next_random_iteration<T>(x, y, vx, vy, ax, ay);
         auto end = chrono::high_resolution_clock::now();
         chrono::duration<double> duration = end - start;
         cout << "Run " << iteration << " finished in " << duration.count() << " seconds\n";
-
-
-        cout << iteration << " mean vx: " << nc::mean(vx)[0] << '\n';
-        cout << iteration << " max vx: " << nc::max(vx)[0] << '\n';
-
     }
 }
 
@@ -146,12 +155,12 @@ int main()
     Config<double> config = Config<double>();
     config.save();
 
-    #pragma omp parallel for
-    for(int i=0;i < numThreads; i++){
+#pragma omp parallel for
+    for (int i = 0; i < numThreads; i++)
+    {
         const int start = config.iterations * i / numThreads;
-        const int end = config.iterations * (i+1) / numThreads;
+        const int end = config.iterations * (i + 1) / numThreads;
 
         generateData<double>(config, start, end);
     }
-
 }
