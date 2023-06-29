@@ -1,9 +1,7 @@
 import math
 import os
-import random
 import time
 import numpy as np
-from numba import jit
 from Three_body_2D_Rick import Config, plot, compute_euler, compute_verlet
 
 rf = 6
@@ -59,7 +57,6 @@ def main():
         ax[0, 0:3] = ax[-1, -3:]
         ay[0, 0:3] = ay[-1, -3:]
 
-    #@jit(nopython=True)
     def init_next_random_iteration(x, y, vx, vy, ax, ay):
         # procedure followed by breen et al. (figure 1)
         x1 = 1
@@ -114,10 +111,10 @@ def main():
         else:
             # runs that failed have only zero's at the end
             # find the point from where everything is all zero's and delete that part of the data
-            x = x[:moment_of_failure,]
-            y = y[:moment_of_failure,]
-            vx = vx[:moment_of_failure,]
-            vy = vy[:moment_of_failure,]
+            x = x[:moment_of_failure, ]
+            y = y[:moment_of_failure, ]
+            vx = vx[:moment_of_failure, ]
+            vy = vy[:moment_of_failure, ]
 
             save_data("_" + str(iteration))
 
@@ -126,12 +123,13 @@ def main():
         )
         ax, ay = (np.zeros((3, 3), dtype=np.longdouble) for _ in range(2))
         init_next_random_iteration(x, y, vx, vy, ax, ay)
-        end = time.time()
-        print(f"Run {iteration}: {end - start} seconds\t ETA: {(end-start) * ((rf+1) *config.iterations - iteration)} seconds")
+
+        runtime = time.time() - start
+        eta = runtime * ((rf + 1) * (config.iterations - iteration))
+        print(f"Run {iteration}: {runtime} seconds\t ETA: {eta} seconds")
 
 
 if __name__ == "__main__":
     start = time.time()
     main()
-    end = time.time()
-    print(f"Finished in {end-start} seconds")
+    print(f"Finished in {time.time() - start} seconds")
