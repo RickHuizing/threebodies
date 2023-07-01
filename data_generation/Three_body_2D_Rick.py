@@ -4,9 +4,12 @@ from typing import List
 import numpy as np
 from dataclasses_json import DataClassJsonMixin
 from matplotlib import pyplot as plt
-import matplotlib_style
+from matplotlib.pyplot import gca
 
-matplotlib_style.init_plt_style()
+
+# import matplotlib_style
+#
+# matplotlib_style.init_plt_style()
 
 
 def compute_a(x, y, M, ax, ay, G):
@@ -76,7 +79,22 @@ def compute_verlet(time_steps, step_size, x, y, M, ax, ay, G, vx, vy):
     return -1  # success
 
 
-def plot(x, y, path: str = None, show=True, savefig=True):
+def compare_plot(x1, y1, x2, y2, path: str = None, show=True, savefig=False, title="Comparison"):
+    plt.figure().clear()
+    _plot(x2, y2)
+    _plot(x1, y1, dotted=True)
+
+    plt.legend(loc="best")
+    plt.title(title)
+
+    if savefig and path is not None:
+        plt.savefig(f'{path}/validation_trajectory.svg', format='svg', dpi=1200)
+
+    if show:
+        plt.show()
+
+
+def plot(x, y, path: str = None, show=True, savefig=True, title="Trajectory"):
     if not show and not savefig:
         return
 
@@ -84,26 +102,34 @@ def plot(x, y, path: str = None, show=True, savefig=True):
     plt.close()
     plt.cla()
     plt.clf()
-    plt.title("Simple Euler method")
-    plt.xlabel('x')
-    plt.ylabel('y')
-    plt.xlim((-3, 3))
-    plt.ylim((-3, 3))
-    # plt.xscale("logit")
-    # plt.yscale("logit")
-    plt.plot(x[:, 0], y[:, 0], 'r')
-    plt.plot(x[:, 1], y[:, 1], 'g')
-    plt.plot(x[:, 2], y[:, 2], 'b')
-    plt.plot(x[0, 0], y[0, 0], 'ro')
-    plt.plot(x[0, 1], y[0, 1], 'go')
-    plt.plot(x[0, 2], y[0, 2], 'bo')
 
-    plt.legend(('Body 1', 'Body 2', 'Body 3'))
+    _plot(x, y)
+
+    plt.legend(loc="best")
+    plt.title(title)
 
     if savefig and path is not None:
         plt.savefig(path)
     if show:
         plt.show()
+
+
+def _plot(x: np.ndarray, y, dotted=False):
+    plt.title("Simple Euler method")
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.xlim((-3, 3))
+    plt.ylim((-3, 3))
+
+    colors = ['r', 'g', 'b']
+    for i in range(3):
+        color = colors[i]
+        if dotted:
+            plt.plot(x[:, i], y[:, i], color='purple', linestyle='dotted', linewidth=1, label=f'True {i}')
+        else:
+            plt.plot(x[:, i], y[:, i], color=color, label=f'Body {i}')
+
+        plt.plot(x[0, i], y[0, i], color + 'o')
 
 
 @dataclass()
