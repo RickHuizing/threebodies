@@ -1,0 +1,2 @@
+model_checkpoint_path: "Experiment_2_5-breen-et-al-00001_weights.tf"
+all_model_checkpoint_paths: "Experiment_2_5-breen-et-al-00001_weights.tf"
