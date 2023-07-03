@@ -16,20 +16,12 @@ def initialize_and_save_config() -> Config:
         iterations=10000,
     )
 
-    # create output directories
-    os.makedirs(config.get_path(), exist_ok=True)
-
-    # save configuration to file
-    file = open(config.get_path() + "config.json", "w")
-    file.write(config.to_json(indent=2))
-    file.close()
+    config.save()
 
     return config
 
 
-def main():
-    config = initialize_and_save_config()
-
+def runSimulation(config, init="random", rf=0, noFail=False):
     # initialize x, y, velocity and acceleration vectors
     time_steps = config.time_vector().shape[0]
     x = np.zeros((time_steps, 3), dtype=np.longdouble)
@@ -83,50 +75,67 @@ def main():
 
         os.makedirs(folder, exist_ok=True)
 
-        plot(x, y, folder + "plot.png", show=False)
+        plot(x, y, folder + "plot.svg", show=False)
 
         np.savez(folder + "data.npz", x=x, y=y, vx=vx, vy=vy)
 
-    # init_bodies()
-    init_next_random_iteration(x, y, vx, vy, ax, ay)
+    if init == "random":
+        init_next_random_iteration(x, y, vx, vy, ax, ay)
+    elif init == "config":
+        init_bodies()
+    elif init == "continuous":
+        init_next_continuous_iteration
+    else:
+        raise AssertionError
 
     increment = config.range[1]
     for iteration in range(rf * config.iterations, (rf + 1) * config.iterations):
         start = time.time()
-        moment_of_failure = compute_verlet(
-            config.time_vector(),
-            config.step_size,
-            x,
-            y,
-            config.M,
-            ax,
-            ay,
-            config.G,
-            vx,
-            vy,
-        )
+        moment_of_failure = 0
+        while moment_of_failure != -1:
 
-        if moment_of_failure == -1:
-            save_data(iteration)
-        else:
-            # runs that failed have only zero's at the end
-            # find the point from where everything is all zero's and delete that part of the data
-            x = x[:moment_of_failure, ]
-            y = y[:moment_of_failure, ]
-            vx = vx[:moment_of_failure, ]
-            vy = vy[:moment_of_failure, ]
+            moment_of_failure = compute_verlet(
+                config.time_vector(),
+                config.step_size,
+                x,
+                y,
+                config.M,
+                ax,
+                ay,
+                config.G,
+                vx,
+                vy,
+            )
 
-            save_data("_" + str(iteration))
+            if moment_of_failure == -1:
+                save_data(iteration)
+            elif not noFail:
+                # runs that failed have only zero's at the end
+                # find the point from where everything is all zero's and delete that part of the data
+                x = x[:moment_of_failure,]
+                y = y[:moment_of_failure,]
+                vx = vx[:moment_of_failure,]
+                vy = vy[:moment_of_failure,]
 
-        x, y, vx, vy = (
-            np.zeros((time_steps, 3), dtype=np.longdouble) for _ in range(4)
-        )
-        ax, ay = (np.zeros((3, 3), dtype=np.longdouble) for _ in range(2))
-        init_next_random_iteration(x, y, vx, vy, ax, ay)
+                save_data("_" + str(iteration))
+
+            x, y, vx, vy = (
+                np.zeros((time_steps, 3), dtype=np.longdouble) for _ in range(4)
+            )
+            ax, ay = (np.zeros((3, 3), dtype=np.longdouble) for _ in range(2))
+            init_next_random_iteration(x, y, vx, vy, ax, ay)
+
+            if not noFail:
+                break
 
         runtime = time.time() - start
-        eta = runtime * ((rf + 1) * (config.iterations - iteration))
-        print(f"Run {iteration}: {runtime} seconds\t ETA: {eta} seconds")
+        print(f"Run {iteration}: {runtime} seconds")
+
+
+def main():
+    config = initialize_and_save_config()
+
+    runSimulation(config, "random", rf)
 
 
 if __name__ == "__main__":

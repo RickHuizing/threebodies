@@ -5,6 +5,7 @@ import numpy as np
 from dataclasses_json import DataClassJsonMixin
 from matplotlib import pyplot as plt
 from matplotlib.pyplot import gca
+import os
 
 
 # import matplotlib_style
@@ -168,3 +169,12 @@ class Config(DataClassJsonMixin):
 
     def get_path(self):
         return "results/{0}/".format(self.name)
+    
+    def save(self):
+    # create output directories
+        os.makedirs(self.get_path(), exist_ok=True)
+
+        # save configuration to file
+        file = open(self.get_path() + "config.json", "w")
+        file.write(self.to_json(indent=2))
+        file.close()
