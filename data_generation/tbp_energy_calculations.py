@@ -81,6 +81,7 @@ def visualize_dataset(x, y, vx, vy, G, M, down_sample_factor=1000):
     plt.plot(energy.T[1])
     plt.plot(energy.T[2])
     plt.legend(["potential_energy", "kinetic_energy", "system_energy"])
+    plt.savefig(f'energy_plots.svg', format='svg', dpi=1200)
     plt.show()
 
     Three_body_2D_Rick.plot(x, y)

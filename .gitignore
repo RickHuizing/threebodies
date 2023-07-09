@@ -1,4 +1,6 @@
 /data_generation/results/*
+!/data_generation/results/periodic/
+!/data_generation/results/test_set_3/
 .idea
 !/data_generation/results/verlet-000001/
 !/data_generation/results/verlet-000001/*
