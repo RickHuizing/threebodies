@@ -34,6 +34,7 @@ def load_datasets(load_successful=True, load_unsuccessful=False, limit=1):
     datasets = os.scandir(get_input_path())
     datasets = filter(lambda file: file.is_dir(), datasets)
     datasets = [ds.name for ds in datasets]
+    datasets = sorted(datasets)
 
     if load_successful and not load_unsuccessful:
         datasets = filter(lambda name: not name.startswith("_"), datasets)

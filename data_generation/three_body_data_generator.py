@@ -4,15 +4,15 @@ import time
 import numpy as np
 from Three_body_2D_Rick import Config, plot, compute_euler, compute_verlet
 
-rf = 6
+rf = 1
 
 
 def initialize_and_save_config() -> Config:
     # initialize configuration
     config: Config = Config(
-        name="verlet-000001-" + str(rf),
-        step_size=0.000001,
-        range=(0, 10),
+        name="test_set_3",
+        step_size=0.00001,
+        range=(0, 2.5),
         iterations=10000,
     )
 
@@ -69,6 +69,36 @@ def runSimulation(config, init="random", rf=0, noFail=False):
 
         ax[0, 0:3] = [0, 0, 0]
         ay[0, 0:3] = [0, 0, 0]
+
+    def init_special_system():
+        x1, y1 = 0, 0
+        x2, y2 = -1, 0
+        x3, y3 = 1, 0
+
+        vx1, vy1 = 0, 0
+        vx2, vy2 = 0, 1
+        vx3, vy3 = 0, -1
+
+        x[0, 0], x[0, 1], x[0, 2] = x1, x2, x3
+        y[0, 0], y[0, 1], y[0, 2] = y1, y2, y3
+
+        vx[0, 0], vx[0, 1], vx[0, 2] = vx1, vx2, vx3
+        vy[0, 0], vy[0, 1], vy[0, 2] = vy1, vy2, vy3
+
+    def init_special_system2():
+        x1, y1 = (-0.97000436, 0.24308753)
+        x2, y2 = 0, 0
+        x3, y3 = (0.97000436, -0.24308753)
+
+        vx1, vy1 = (0.4662036850, 0.4323657300)
+        vx2, vy2 = (-0.93240737, -0.86473146)
+        vx3, vy3 = vx1, vy1
+
+        x[0, 0], x[0, 1], x[0, 2] = x1, x2, x3
+        y[0, 0], y[0, 1], y[0, 2] = y1, y2, y3
+
+        vx[0, 0], vx[0, 1], vx[0, 2] = vx1, vx2, vx3
+        vy[0, 0], vy[0, 1], vy[0, 2] = vy1, vy2, vy3
 
     def save_data(result_id):
         folder = config.get_path() + str(result_id) + "/"

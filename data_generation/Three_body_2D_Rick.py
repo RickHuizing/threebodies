@@ -95,6 +95,22 @@ def compare_plot(x1, y1, x2, y2, path: str = None, show=True, savefig=False, tit
         plt.show()
 
 
+def compare_plot2(x1, y1, x2, y2, path: str = None, show=True, title="Comparison"):
+    """ Sorry for the duplicate but it's easier for now """
+    plt.figure().clear()
+    _plot(x2, y2)
+    _plot(x1, y1, dotted=True)
+
+    plt.legend(loc="best")
+    plt.title(title)
+
+    if path is not None:
+        plt.savefig(f'{path}', format='svg', dpi=1200)
+
+    if show:
+        plt.show()
+
+
 def plot(x, y, path: str = None, show=True, savefig=True, title="Trajectory"):
     if not show and not savefig:
         return
@@ -110,7 +126,7 @@ def plot(x, y, path: str = None, show=True, savefig=True, title="Trajectory"):
     plt.title(title)
 
     if savefig and path is not None:
-        plt.savefig(path)
+        plt.savefig(path, format='svg', dpi=1200)
     if show:
         plt.show()
 
